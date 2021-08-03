@@ -49,9 +49,6 @@ def scrap(base_url, article, output_file, session_file):
     soup = BeautifulSoup(r.text, 'html.parser')
     content = soup.find('div', {'id':'mw-content-text'})
 
-    with open(session_file, 'a') as fout:
-        fout.write(full_url + '\n')  # log URL to session file
-
     # add new related articles to queue
     # check if are actual articles URL
     for a in content.find_all('a'):
@@ -73,6 +70,10 @@ def scrap(base_url, article, output_file, session_file):
     # skip if already added text from this article, as continuing session
     if full_url in visited_urls:
         return
+
+    with open(session_file, 'a') as fout:
+        fout.write(full_url + '\n')  # log URL to session file
+
     visited_urls.add(full_url)
 
     parenthesis_regex = re.compile('\(.+?\)')  # to remove parenthesis content
