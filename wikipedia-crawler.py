@@ -5,13 +5,13 @@ import sys
 import time
 import argparse
 import re
-from urllib.parse import urlparse
+from urllib.parse import urlparse, unquote
 
 import requests
 from bs4 import BeautifulSoup
 
 
-DEFAULT_OUTPUT = 'output.txt'
+DEFAULT_OUTPUT = 'wikipedia_de/output.txt'
 DEFAULT_INTERVAL = 5.0  # interval between requests (seconds)
 DEFAULT_ARTICLES_LIMIT = 1  # total number articles to be extrated
 USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36'
@@ -95,7 +95,7 @@ def main(initial_url, articles_limit, interval, output_file):
     minutes_estimate = interval * articles_limit / 60
     print("This session will take {:.1f} minute(s) to download {} article(s):".format(minutes_estimate, articles_limit))
     print("\t(Press CTRL+C to pause)\n")
-    session_file = "session_" + output_file
+    session_file = "session.txt" # "session_" + output_file
     load_urls(session_file)  # load previous session (if any)
     base_url = '{uri.scheme}://{uri.netloc}'.format(uri=urlparse(initial_url))
     initial_url = initial_url[len(base_url):]
@@ -113,8 +113,11 @@ def main(initial_url, articles_limit, interval, output_file):
                 break
 
             time.sleep(interval)
-            article_format = next_url.replace('/wiki/', '')[:35]
-            print("{:<7} {}".format(counter, article_format))
+            article_name = unquote(next_url.replace('/wiki/', '')[:35])
+            for c in '\/:*?"<>|':
+                article_name = article_name.replace(c, '')
+            print("{:<7} {}".format(counter, article_name))
+            output_file = "wikipedia_de/{}.txt".format(article_name)
             scrap(base_url, next_url, output_file, session_file)
         except KeyboardInterrupt:
             input("\n> PAUSED. Press [ENTER] to continue...\n")
