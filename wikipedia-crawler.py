@@ -11,7 +11,7 @@ import requests
 from bs4 import BeautifulSoup
 
 
-DEFAULT_OUTPUT = 'wikipedia_de/output.txt'
+DEFAULT_OUTPUT = 'wikipedia_articles/output.txt'
 DEFAULT_INTERVAL = 5.0  # interval between requests (seconds)
 DEFAULT_ARTICLES_LIMIT = 1  # total number articles to be extrated
 USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36'
@@ -118,7 +118,7 @@ def main(initial_url, articles_limit, interval, output_file):
             for c in '\/:*?"<>|':
                 article_name = article_name.replace(c, '')
             print("{:<7} {}".format(counter, article_name))
-            output_file = "wikipedia_de/{}.txt".format(article_name)
+            output_file = "wikipedia_articles/{}.txt".format(article_name)
             scrap(base_url, next_url, output_file, session_file)
         except KeyboardInterrupt:
             input("\n> PAUSED. Press [ENTER] to continue...\n")
