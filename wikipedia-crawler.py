@@ -19,6 +19,7 @@ USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, li
 visited_urls = set()  # all urls already visited, to not visit twice
 pending_urls = []  # queue
 next_pending_urls = []  # next level of breath-first-search
+collect_more_links = True  # Stopping criterion to ony crawl 1 depth level
 
 
 def load_urls(session_file):
@@ -52,21 +53,22 @@ def scrap(base_url, article, output_file, session_file):
 
     # add new related articles to queue
     # check if are actual articles URL
-    for a in content.find_all('a'):
-        href = a.get('href')
-        if not href:
-            continue
-        if href[0:6] != '/wiki/':  # allow only article pages
-            continue
-        elif ':' in href:  # ignore special articles e.g. 'Special:'
-            continue
-        elif href[-4:] in ".png .jpg .jpeg .svg":  # ignore image files inside articles
-            continue
-        elif base_url + href in visited_urls:  # already visited
-            continue
-        if href in pending_urls:  # already added to queue
-            continue
-        next_pending_urls.append(href)
+    if collect_more_links:
+        for a in content.find_all('a'):
+            href = a.get('href')
+            if not href:
+                continue
+            if href[0:6] != '/wiki/':  # allow only article pages
+                continue
+            elif ':' in href:  # ignore special articles e.g. 'Special:'
+                continue
+            elif href[-4:] in ".png .jpg .jpeg .svg":  # ignore image files inside articles
+                continue
+            elif base_url + href in visited_urls:  # already visited
+                continue
+            if href in pending_urls:  # already added to queue
+                continue
+            next_pending_urls.append(href)
 
     # skip if already added text from this article, as continuing session
     if full_url in visited_urls:
@@ -112,6 +114,7 @@ def main(initial_url, articles_limit, interval, output_file):
             if len(pending_urls) == 0:
                 pending_urls.extend(next_pending_urls)
                 next_pending_urls.clear()
+                collect_more_links = False  # False: only crawl 1 level
             try:
                 next_url = pending_urls.pop(0)
             except IndexError:
