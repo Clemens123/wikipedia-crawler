@@ -18,6 +18,7 @@ USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, li
 
 visited_urls = set()  # all urls already visited, to not visit twice
 pending_urls = []  # queue
+next_pending_urls = []  # next level of breath-first-search
 
 
 def load_urls(session_file):
@@ -65,7 +66,7 @@ def scrap(base_url, article, output_file, session_file):
             continue
         if href in pending_urls:  # already added to queue
             continue
-        pending_urls.append(href)
+        next_pending_urls.append(href)
 
     # skip if already added text from this article, as continuing session
     if full_url in visited_urls:
@@ -101,13 +102,16 @@ def main(initial_url, articles_limit, interval, output_file):
     base_url = '{uri.scheme}://{uri.netloc}'.format(uri=urlparse(initial_url))
     initial_url = initial_url[len(base_url):]
     pending_urls.append(initial_url)
-
+    x = 2
     counter = 0
-    while len(pending_urls) > 0:
+    while len(pending_urls) > 0 or len(next_pending_urls) > 0:
         try:
             counter += 1
             if counter > articles_limit:
                 break
+            if len(pending_urls) == 0:
+                pending_urls.extend(next_pending_urls)
+                next_pending_urls.clear()
             try:
                 next_url = pending_urls.pop(0)
             except IndexError:
