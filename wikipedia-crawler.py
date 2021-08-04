@@ -102,7 +102,7 @@ def main(initial_url, articles_limit, interval, output_file):
     base_url = '{uri.scheme}://{uri.netloc}'.format(uri=urlparse(initial_url))
     initial_url = initial_url[len(base_url):]
     pending_urls.append(initial_url)
-    x = 2
+
     counter = 0
     while len(pending_urls) > 0 or len(next_pending_urls) > 0:
         try:
