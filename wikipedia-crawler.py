@@ -66,7 +66,7 @@ def scrap(base_url, article, output_file, session_file):
                 continue
             elif base_url + href in visited_urls:  # already visited
                 continue
-            if href in pending_urls:  # already added to queue
+            if href in next_pending_urls:  # already added to queue
                 continue
             next_pending_urls.append(href)
 
